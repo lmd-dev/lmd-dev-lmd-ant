@@ -1,3 +1,4 @@
+//Possible types for cells
 export enum CellType
 {
     CLEAR = 1,

@@ -1,3 +1,4 @@
+//Possible types for cells
 export var CellType;
 (function (CellType) {
     CellType[CellType["CLEAR"] = 1] = "CLEAR";

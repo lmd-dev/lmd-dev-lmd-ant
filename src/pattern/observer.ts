@@ -1,4 +1,7 @@
+/**
+ * Representes an observer in the Notifier/Observer pattern
+ */
 export interface Observer
 {
-    notify(): void;
+    notify(info: string): void;
 }

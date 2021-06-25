@@ -13,11 +13,28 @@
         <cellmode class="wall">Wall</cellmode>
         <cellmode class="food">Food</cellmode>
         <cellmode class="anthill">Ant Hill</cellmode>
-        <button>Start</button>
     </aside>
     <content>
         <cells></cells>
     </content>
+    <aside>
+        <button id="btn-save">Save</button>
+        <button id="btn-load">Load</button>
+        <button id="btn-start">Start</button>
+
+        <label title="Largeur du terrain">Largeur</label>
+        <input type="number" step="1" min="5" id="txt-land-width">
+        <label title="Hauteur du terrain">Hauteur</label>
+        <input type="number" step="1" min="5" id="txt-land-height">
+        <label title="Quantité de phéromones déposée par chaque fourmi">Dépot P.</label>
+        <input type="number" step="0.01" min="0" id="txt-depot-p">
+        <label title="Vitesse d'évaporation des phéromones">Evap. P.</label>
+        <input type="number" step="0.01" min="0" id="txt-evap-p">
+        <label title="Quantité de fourmis">Fourmis</label>
+        <input type="number" step="1" min="1" id="txt-ant-number">
+        <button id="btn-add-ant">+ 1</button>
+        <button id="btn-remove-ant">- 1</button>
+    </aside>
 
     <script type="module" src="dist/application/app.js"></script>
 </body>

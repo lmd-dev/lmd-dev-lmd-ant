@@ -1,40 +1,74 @@
 import { CellType } from "./cell-type.js";
 import { Cell } from "./cell.js";
 
+/**
+ * Represent an ant in the simulation
+ */
 export class Ant
 {
+    //Cell on which the ant is
     private _currentCell : Cell;
     public get currentCell() : Cell {return this._currentCell; }
         
+    //Last cell on which the ant was
     private _lastCell : Cell;
     public get lastCell() : Cell {return this._lastCell; }    
 
+    //Path coverd by the ant
     private readonly path: Cell[];
     
+    //Goald of the ant : food or anthill
     private _goal : CellType.FOOD | CellType.ANTHILL;
     public get goal() : CellType.FOOD | CellType.ANTHILL {return this._goal; }
     public set goal(value : CellType.FOOD | CellType.ANTHILL) { this._goal = value; }
         
+    /**
+     * Constructor
+     * @param origin First cell on which place the ant 
+     */
     constructor(origin: Cell)
     {
         this._currentCell = origin;
         this._lastCell = null;
         this.path = [];
         this._goal = CellType.FOOD;
+
+        this._currentCell.addAnt(this);
     }
 
-    move()
+    /**
+     * Removes an ant from its current cell
+     */
+    removeFromCell()
+    {
+        if(this.currentCell)
+            this.currentCell.removeAnt(this);
+    }
+
+    /**
+     * Moves the ant to another cell
+     * @param droppedPheromoneQuantity Quantity of pheromones to drop before moving 
+     */
+    move(droppedPheromoneQuantity: number)
     {
         if(this.goal === CellType.FOOD || this.path.length === 0)
-        {
+        {            
+            this._currentCell.addPheromone(droppedPheromoneQuantity);
+
             const possibleDirections = this.getPossibleDirections();
         
             this.selectNextCell(possibleDirections);
         }
         else
         {
-            this._currentCell.addPheromone(0.05);
+            this._currentCell.addPheromone(droppedPheromoneQuantity);
+
+            this._currentCell.removeAnt(this);
+
             this._currentCell = this.path[this.path.length - 1];
+            
+            this._currentCell.addAnt(this);
+
             this._lastCell = null;
 
             this.path.splice(this.path.length - 1, 1);
@@ -43,6 +77,10 @@ export class Ant
         this.updateGoal();
     }
 
+    /**
+     * Returns all possible direction from the current cell
+     * @returns Possible cells to go
+     */
     private getPossibleDirections(): Cell[]
     {
         const possibleDirections = this.currentCell.neighbors.filter((cell) => {
@@ -61,6 +99,10 @@ export class Ant
         return possibleDirections;
     }
 
+    /**
+     * Selects the next cell to go from the possible directions
+     * @param possibleDirections Possible cells to go from the current cell
+     */
     private selectNextCell(possibleDirections: Cell[])
     {
         if(possibleDirections.length == 0)
@@ -105,13 +147,19 @@ export class Ant
             this._lastCell = this.currentCell;
             this._currentCell = selectedDirection;
 
+            this.lastCell.removeAnt(this);
+            this.currentCell.addAnt(this);
+
             if(this.goal === CellType.FOOD)
                 this.path.push(this.lastCell);
-
-            this._lastCell.addPheromone(0.05);
         }
     }
 
+    /**
+     * Updates the goal of the ant : 
+     *  - when it find food => anthill 
+     *  - when it find anthill => food
+     */
     private updateGoal()
     {
         if(this.currentCell.type === this.goal)

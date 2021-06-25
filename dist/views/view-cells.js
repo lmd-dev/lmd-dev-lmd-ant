@@ -1,4 +1,7 @@
 import { CellType } from "../models/cell-type.js";
+/**
+ *
+ */
 export class ViewCells {
     constructor(controllerCells) {
         this._controllerCells = controllerCells;
@@ -10,11 +13,53 @@ export class ViewCells {
         document.querySelector("cellmode.wall").addEventListener("click", () => { this._controllerCells.cellMode = CellType.WALL; });
         document.querySelector("cellmode.food").addEventListener("click", () => { this._controllerCells.cellMode = CellType.FOOD; });
         document.querySelector("cellmode.anthill").addEventListener("click", () => { this._controllerCells.cellMode = CellType.ANTHILL; });
-        document.querySelector("button").addEventListener("click", () => { this._controllerCells.start(); });
+        document.querySelector("#btn-start").addEventListener("click", () => { this._controllerCells.toggleSimulation(); });
+        document.querySelector("#btn-save").addEventListener("click", () => { this._controllerCells.save(); });
+        document.querySelector("#btn-load").addEventListener("click", () => { this._controllerCells.load(); });
+        document.querySelector("#btn-add-ant").addEventListener("click", () => { this._controllerCells.createAnt(); });
+        document.querySelector("#btn-remove-ant").addEventListener("click", () => { this._controllerCells.removeAnt(); });
+        document.getElementById("txt-depot-p")?.addEventListener("change", (event) => {
+            this._controllerCells.settings.droppedPheromoneQuantity = parseFloat(event.target.value);
+        });
+        document.getElementById("txt-evap-p")?.addEventListener("change", (event) => {
+            this._controllerCells.settings.pheromoneEvaporationSpeed = parseFloat(event.target.value);
+        });
+        document.getElementById("txt-ant-number")?.addEventListener("change", (event) => {
+            this._controllerCells.settings.antNumber = parseFloat(event.target.value);
+        });
     }
-    notify() {
+    notify(info = "") {
         this.displayModes();
-        this.displayCells();
+        switch (info) {
+            case "cells":
+                this.displayCells();
+                break;
+            case "buttons":
+                this.refreshButtons();
+                break;
+            case "settings":
+                this.refreshSettings();
+                break;
+        }
+    }
+    refreshButtons() {
+        const startButton = document.querySelector("#btn-start");
+        if (this._controllerCells.simulationStarted)
+            startButton.innerHTML = "Stop";
+        else
+            startButton.innerHTML = "Start";
+    }
+    refreshSettings() {
+        const { droppedPheromoneQuantity, pheromoneEvaporationSpeed, antNumber } = this._controllerCells.settings;
+        const txtDepotP = document.getElementById("txt-depot-p");
+        if (txtDepotP)
+            txtDepotP.value = droppedPheromoneQuantity.toFixed(2);
+        const txtEvapP = document.getElementById("txt-evap-p");
+        if (txtEvapP)
+            txtEvapP.value = pheromoneEvaporationSpeed.toFixed(2);
+        const txtAntNumber = document.getElementById("txt-ant-number");
+        if (txtAntNumber)
+            txtAntNumber.value = antNumber.toFixed(0);
     }
     displayModes() {
         document.querySelectorAll("cellmode").forEach((cellmode) => { cellmode.classList.remove("active"); });
@@ -36,7 +81,7 @@ export class ViewCells {
     displayCells() {
         const cells = document.querySelector("cells");
         cells.innerHTML = "";
-        this._controllerCells.cells.forEach((row) => {
+        this._controllerCells.land.cells.forEach((row) => {
             const rowHTML = document.createElement("row");
             row.forEach((cell) => {
                 const cellHTML = document.createElement("cell");
